@@ -1,7 +1,9 @@
 import mercadopage from "mercadopago";
 import { MERCADOPAGO_API_KEY } from "../config.js";
 
+
 export const createOrder = async (req, res) => {
+  const request = req.body
   mercadopage.configure({
     access_token: MERCADOPAGO_API_KEY,
   });
@@ -10,17 +12,17 @@ export const createOrder = async (req, res) => {
     const result = await mercadopage.preferences.create({
       items: [
         {
-          title: "Laptop",
-          unit_price: 500,
+          title: request.course,
+          unit_price: 50,
           currency_id: "PEN",
-          quantity: 1,
+          quantity: request.quantity,
         },
       ],
-      notification_url: "https://e720-190-237-16-208.sa.ngrok.io/webhook",
+      notification_url: "https://wxfwccs3-3001.brs.devtunnels.ms/webhook",
       back_urls: {
-        success: "http://localhost:3000/success",
+        success: "https://code-lab-tm.netlify.app/courses/payment-success",
         // pending: "https://e720-190-237-16-208.sa.ngrok.io/pending",
-        // failure: "https://e720-190-237-16-208.sa.ngrok.io/failure",
+        failure: "https://code-lab-tm.netlify.app/courses/payment-error",
       },
     });
 
@@ -36,6 +38,7 @@ export const createOrder = async (req, res) => {
 export const receiveWebhook = async (req, res) => {
   try {
     const payment = req.query;
+    console.log(req);
     console.log(payment);
     if (payment.type === "payment") {
       const data = await mercadopage.payment.findById(payment["data.id"]);
